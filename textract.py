@@ -1,6 +1,6 @@
 import boto3
 # Amazon Textract client
-textract = boto3.client('textract')
+textract = boto3.client('textract', region_name='ap-south-1')
 
 def transcribe(documentName):
     # Read document content
