@@ -27,14 +27,16 @@ app.add_middleware(
 )
 
 @app.post('/process')
-async def process(person_id: int, file_obj: UploadFile = File(...)):
+async def process(file_obj: UploadFile = File(...)):
+    person_id=int(extract_filename(file_obj.filename).split("_")[-1])
     file_loc = save_pdf(file_obj)
     print("pdf saved at : ", file_loc)
     return process_file(person_id, file_loc)
 
 
 @app.post('/batch_process')
-async def process_pdf_async(person_id: int, file_obj: UploadFile = File(...)):
+async def process_pdf_async(file_obj: UploadFile = File(...)):
+    person_id=int(extract_filename(file_obj.filename).split("_")[-1])
     file_loc = save_pdf(file_obj)
     print("pdf saved at : ", file_loc)
     result=start_processing.delay(person_id, file_loc)
