@@ -21,7 +21,7 @@ def process_file(person_id: int, file_loc: str):
     pages = process_pdf(file_loc)
 
     savedPages=[]
-    saveLoc='http://18.130.155.16:7001/res/{}/'.format(extract_filename(file_loc))
+    saveLoc='./res/{}/'.format(extract_filename(file_loc))
 
     create_dir(saveLoc)
 
@@ -30,7 +30,7 @@ def process_file(person_id: int, file_loc: str):
         image, draw = get_draw_instance(page)
         draw=draw_image(draw, image.size, person_id, response)
         image.save(saveLoc+'{}.png'.format(idx))
-        savedPages.append(saveLoc+'{}.png'.format(idx))
+        savedPages.append('http://18.130.155.16:7001/'+saveLoc[2:]+'{}.png'.format(idx))
     return savedPages
 
 @app.task(bind=True)
