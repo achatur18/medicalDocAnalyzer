@@ -21,7 +21,7 @@ def process_file(person_id: int, file_loc: str):
     pages = process_pdf(file_loc)
 
     savedPages=[]
-    saveLoc='./res/{}/'.format(extract_filename(file_loc))
+    saveLoc='http://18.130.155.16:7001/res/{}/'.format(extract_filename(file_loc))
 
     create_dir(saveLoc)
 
