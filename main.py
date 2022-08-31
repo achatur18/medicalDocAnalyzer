@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import FastAPI, Request, UploadFile, File
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,6 +16,7 @@ client = pymongo.MongoClient("mongodb://127.0.0.1:27017/")
 db = client["task_results"]
 # Collection Name
 coll = db["celery_taskmeta"]
+coll_keyword = db["coll_keyword"]
 
 
 app = FastAPI()
@@ -26,7 +28,7 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-@app.post('/process')
+@app.post('/process_diseases')
 async def process(file_obj: UploadFile = File(...)):
     person_id=int(extract_filename(file_obj.filename).split("_")[-1])
     file_loc = save_pdf(file_obj)
@@ -34,12 +36,12 @@ async def process(file_obj: UploadFile = File(...)):
     return process_file(person_id, file_loc)
 
 
-@app.post('/batch_process')
+@app.post('/batch_process_diseases')
 async def process_pdf_async(file_obj: UploadFile = File(...)):
     person_id=int(extract_filename(file_obj.filename).split("_")[-1])
     file_loc = save_pdf(file_obj)
     print("pdf saved at : ", file_loc)
-    result=start_processing.delay(person_id, file_loc)
+    result=start_processing.delay(person_id=person_id, file_loc=file_loc)
     return {"status": result.state, 'id': result.id, 'error': ''}
 
 
@@ -57,3 +59,43 @@ async def check_async_progress(task_id: str):
         if data:
             return {'status': 'SUCEESS', 'data': data['result']}
         return {'status': 'Task ID invalid', 'error': e}
+
+@app.post('/add_keywords/{words}')
+async def check_async_progress(words: str):
+    try:
+        words=[x.strip() for x in words.split(",")]
+
+        if isinstance(coll_keyword.find_one({'id': 0}), dict):
+            newvalues = { "$set": { "keywords": words } }
+            coll_keyword.update_one({"id": 0}, newvalues)
+            print("Updated keywords!")
+            
+        else:
+            coll_keyword.insert_one({"id": 0, "keywords": words})
+            print("Created keywords!")
+        return {'status': 'Updated keywords.', 'error': ''}
+    except Exception as e:
+        return {'status': 'Could not update keywords.', 'error': e}
+
+
+
+@app.post('/search_keywords')
+async def search(file_obj: UploadFile = File(...)):
+    person_id=int(extract_filename(file_obj.filename).split("_")[-1])
+    file_loc = save_pdf(file_obj)
+    print("pdf saved at : ", file_loc)
+    search_list=coll_keyword.find_one({'id': 0})['keywords']
+    
+    return process_file(person_id, file_loc, search_list)
+
+
+
+@app.post('/batch_search_keywords')
+async def search_pdf_async(file_obj: UploadFile = File(...)):
+    person_id=int(extract_filename(file_obj.filename).split("_")[-1])
+    file_loc = save_pdf(file_obj)
+    print("pdf saved at : ", file_loc)
+    search_list=coll_keyword.find_one({'id': 0})['keywords']
+    result=start_processing.delay(person_id=person_id, file_loc=file_loc, search_list=search_list)
+    return {"status": result.state, 'id': result.id, 'error': ''}
+

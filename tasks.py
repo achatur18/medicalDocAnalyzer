@@ -1,3 +1,4 @@
+from typing import List, Union
 from celery import Celery
 import os
 import sys
@@ -17,7 +18,7 @@ app = Celery('OCR', broker="amqp://127.0.0.1:5672",
              backend="mongodb://127.0.0.1:27017/task_results")
 
 
-def process_file(person_id: int, file_loc: str):
+def process_file(person_id: int, file_loc: str, search_list=None):
     pages = process_pdf(file_loc)
 
     savedPages=[]
@@ -28,11 +29,11 @@ def process_file(person_id: int, file_loc: str):
     for idx, page in enumerate(pages):
         response=transcribe(page)
         image, draw = get_draw_instance(page)
-        draw=draw_image(draw, image.size, person_id, response)
+        draw=draw_image(draw, image.size, person_id, response, search_list)
         image.save(saveLoc+'{}.png'.format(idx))
         savedPages.append('http://18.130.155.16:7001/'+saveLoc[2:]+'{}.png'.format(idx))
     return savedPages
 
 @app.task(bind=True)
-def start_processing(self, person_id: int, file_obj: str):
-    return process_file(person_id, file_obj)
+def start_processing(self, person_id: int, file_loc: str, search_list: Union[List, None]=None):
+    return process_file(person_id, file_loc, search_list)

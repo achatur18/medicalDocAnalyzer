@@ -13,14 +13,24 @@ def find_disease(text, diseases):
         return True
     return False
 
-def draw_image(draw, w_h, person_id, response=None):
+def draw_image(draw, w_h, person_id, response=None, search_list=None):
+    Keywords_flag=False
+    if search_list==None:
+        search_list=diseases
+    else:
+        Keywords_flag=True
+
+
     w, h=w_h
     for block in response['Blocks']:
         if "Text" in block.keys():
             bbx=block['Geometry']['BoundingBox']
             
-            if find_disease(block['Text'].lower(), diseases):
-                if find_disease(block['Text'].lower(), insured_diseases[int(person_id)]):
+            if find_disease(block['Text'].lower(), search_list):
+                if Keywords_flag:
+                    # print("Found-"+block['Text'].lower())
+                    draw.rectangle(xy=[bbx['Left']*w, (bbx['Top']+bbx['Height'])*h, (bbx['Left']+bbx['Width'])*w, bbx['Top']*h], outline=(0, 0, 128), width=4)
+                elif find_disease(block['Text'].lower(), insured_diseases[int(person_id)]):
                     # print("Found-"+block['Text'].lower())
                     draw.rectangle(xy=[bbx['Left']*w, (bbx['Top']+bbx['Height'])*h, (bbx['Left']+bbx['Width'])*w, bbx['Top']*h], outline=(0, 128, 0), width=4)
                 else:
@@ -36,6 +46,7 @@ def get_draw_instance(documentName):
     rgb_im = image.convert('RGB')
     draw = ImageDraw.Draw(rgb_im)
     return rgb_im, draw
+
 def create_dir(filename):
     if os.path.exists(filename):
         shutil.rmtree(filename)
