@@ -60,10 +60,12 @@ async def check_async_progress(task_id: str):
             return {'status': 'SUCEESS', 'data': data['result']}
         return {'status': 'Task ID invalid', 'error': e}
 
-@app.post('/add_keywords/{words}')
-async def check_async_progress(words):
+@app.post('/add_keywords')
+async def check_async_progress(words: Request):
     try:
         # words=[x.strip() for x in words.split(",")]
+        words=await words.json()
+        words = words['keywords']
 
         if isinstance(coll_keyword.find_one({'id': 0}), dict):
             newvalues = { "$set": { "keywords": words } }
