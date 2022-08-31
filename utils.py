@@ -29,13 +29,13 @@ def draw_image(draw, w_h, person_id, response=None, search_list=None):
             if find_disease(block['Text'].lower(), search_list):
                 if Keywords_flag:
                     # print("Found-"+block['Text'].lower())
-                    draw.rectangle(xy=[bbx['Left']*w, (bbx['Top']+bbx['Height'])*h, (bbx['Left']+bbx['Width'])*w, bbx['Top']*h], outline=(0, 0, 128), width=4)
+                    draw.rectangle(xy=[bbx['Left']*w, (bbx['Top']+bbx['Height'])*h, (bbx['Left']+bbx['Width'])*w, bbx['Top']*h], outline=(255, 255, 0), width=4)
                 elif find_disease(block['Text'].lower(), insured_diseases[int(person_id)]):
                     # print("Found-"+block['Text'].lower())
-                    draw.rectangle(xy=[bbx['Left']*w, (bbx['Top']+bbx['Height'])*h, (bbx['Left']+bbx['Width'])*w, bbx['Top']*h], outline=(0, 128, 0), width=4)
+                    draw.rectangle(xy=[bbx['Left']*w, (bbx['Top']+bbx['Height'])*h, (bbx['Left']+bbx['Width'])*w, bbx['Top']*h], outline=(0, 255, 0), width=4)
                 else:
                     # print("NotFound-"+block['Text'].lower())
-                    draw.rectangle(xy=[bbx['Left']*w, (bbx['Top']+bbx['Height'])*h, (bbx['Left']+bbx['Width'])*w, bbx['Top']*h], outline=(128, 0, 0), width=4)
+                    draw.rectangle(xy=[bbx['Left']*w, (bbx['Top']+bbx['Height'])*h, (bbx['Left']+bbx['Width'])*w, bbx['Top']*h], outline=(255, 0, 0), width=4)
                 
 
     return draw
