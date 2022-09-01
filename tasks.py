@@ -17,6 +17,8 @@ sys.path.append(os.getcwd())
 app = Celery('OCR', broker="amqp://127.0.0.1:5672",
              backend="mongodb://127.0.0.1:27017/task_results")
 
+cache={}
+
 
 def process_file(person_id: int, file_loc: str, search_list=None):
     pages = process_pdf(file_loc)
@@ -27,7 +29,12 @@ def process_file(person_id: int, file_loc: str, search_list=None):
     create_dir(saveLoc)
 
     for idx, page in enumerate(pages):
-        response=transcribe(page)
+        key = extract_filename(file_loc)+"_{}".format(idx)
+        if key in cache.keys():
+            response = cache[key]
+        else:
+            response=transcribe(page)
+            cache[key]=response
         image, draw = get_draw_instance(page)
         draw=draw_image(draw, image.size, person_id, response, search_list)
         image.save(saveLoc+'{}.png'.format(idx))
