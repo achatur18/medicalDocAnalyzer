@@ -7,6 +7,7 @@ from fastapi import UploadFile, File
 from textract import transcribe
 import os, shutil
 from utils import draw_image, get_draw_instance, process_pdf, create_dir, save_pdf, extract_filename
+import json
 
 
 
@@ -36,9 +37,10 @@ def process_file(person_id: int, file_loc: str, search_list=None):
             response=transcribe(page)
             cache[key]=response
         image, draw = get_draw_instance(page)
-        draw=draw_image(draw, image.size, person_id, response, search_list)
-        image.save(saveLoc+'{}.png'.format(idx))
-        savedPages.append('http://18.130.155.16:7001/'+saveLoc[2:]+'{}.png'.format(idx))
+        draw, bbs_exists=draw_image(draw, image.size, person_id, response, search_list)
+        if bbs_exists:
+            image.save(saveLoc+'{}.png'.format(idx))
+            savedPages.append('http://18.130.155.16:7001/'+saveLoc[2:]+'{}.png'.format(idx))
     return savedPages
 
 @app.task(bind=True)

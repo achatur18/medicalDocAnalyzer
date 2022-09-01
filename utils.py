@@ -15,6 +15,7 @@ def find_disease(text, diseases):
 
 def draw_image(draw, w_h, person_id, response=None, search_list=None):
     Keywords_flag=False
+    bbs_exists=False
     if search_list==None:
         search_list=diseases
     else:
@@ -30,15 +31,18 @@ def draw_image(draw, w_h, person_id, response=None, search_list=None):
                 if Keywords_flag:
                     # print("Found-"+block['Text'].lower())
                     draw.rectangle(xy=[bbx['Left']*w, (bbx['Top']+bbx['Height'])*h, (bbx['Left']+bbx['Width'])*w, bbx['Top']*h], outline=(255, 255, 0), width=4)
+                    bbs_exists=True
                 elif find_disease(block['Text'].lower(), insured_diseases[int(person_id)]):
                     # print("Found-"+block['Text'].lower())
                     draw.rectangle(xy=[bbx['Left']*w, (bbx['Top']+bbx['Height'])*h, (bbx['Left']+bbx['Width'])*w, bbx['Top']*h], outline=(0, 255, 0), width=4)
+                    bbs_exists=True
                 else:
                     # print("NotFound-"+block['Text'].lower())
                     draw.rectangle(xy=[bbx['Left']*w, (bbx['Top']+bbx['Height'])*h, (bbx['Left']+bbx['Width'])*w, bbx['Top']*h], outline=(255, 0, 0), width=4)
+                    bbs_exists=True
                 
 
-    return draw
+    return draw, bbs_exists
 
 
 def get_draw_instance(documentName):
