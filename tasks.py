@@ -1,4 +1,5 @@
 from typing import List, Union
+import uuid
 from celery import Celery
 import os
 import sys
@@ -39,8 +40,9 @@ def process_file(person_id: int, file_loc: str, search_list=None):
         image, draw = get_draw_instance(page)
         draw, bbs_exists=draw_image(draw, image.size, person_id, response, search_list)
         if bbs_exists:
-            image.save(saveLoc+'{}.png'.format(idx))
-            savedPages.append('http://18.130.155.16:7001/'+saveLoc[2:]+'{}.png'.format(idx))
+            ids=uuid.uuid4().hex
+            image.save(saveLoc+'{}.png'.format(ids))
+            savedPages.append('http://18.130.155.16:7001/'+saveLoc[2:]+'{}.png'.format(ids))
     return savedPages
 
 @app.task(bind=True)
