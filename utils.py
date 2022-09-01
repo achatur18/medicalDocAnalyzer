@@ -13,6 +13,13 @@ def find_disease(text, diseases):
         return True
     return False
 
+def insured_diseases_(x):
+    x=int(x)
+    if x in insured_diseases.keys():
+        return insured_diseases[x]
+    else:
+        return []
+
 def draw_image(draw, w_h, person_id, response=None, search_list=None):
     Keywords_flag=False
     bbs_exists=False
@@ -32,7 +39,7 @@ def draw_image(draw, w_h, person_id, response=None, search_list=None):
                     # print("Found-"+block['Text'].lower())
                     draw.rectangle(xy=[bbx['Left']*w, (bbx['Top']+bbx['Height'])*h, (bbx['Left']+bbx['Width'])*w, bbx['Top']*h], outline=(255, 255, 0), width=4)
                     bbs_exists=True
-                elif find_disease(block['Text'].lower(), insured_diseases[int(person_id)]):
+                elif find_disease(block['Text'].lower(), insured_diseases_(int(person_id))):
                     # print("Found-"+block['Text'].lower())
                     draw.rectangle(xy=[bbx['Left']*w, (bbx['Top']+bbx['Height'])*h, (bbx['Left']+bbx['Width'])*w, bbx['Top']*h], outline=(0, 255, 0), width=4)
                     bbs_exists=True
